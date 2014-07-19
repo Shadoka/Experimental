@@ -1,6 +1,7 @@
 package visitor;
 
 import exception.EmptyKFieldException;
+import exception.MinGreaterMaxException;
 import exception.NoAlgoSelectedException;
 import exception.NoNegativeNumbersAllowedException;
 import exception.NoPointsGeneratedException;
@@ -17,4 +18,5 @@ public interface GuiExceptionVisitor {
 	public void handle(NoPointsGeneratedException e);
 	public void handle(NoAlgoSelectedException e);
 	public void handle(WrongFileFormatException e);
+	public void handle(MinGreaterMaxException e);
 }

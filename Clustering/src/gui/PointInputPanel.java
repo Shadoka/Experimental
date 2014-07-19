@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import controller.SettingsPanelController;
+import exception.AbstractGuiException;
 
 public class PointInputPanel extends JPanel {
 
@@ -21,6 +22,7 @@ public class PointInputPanel extends JPanel {
 	private final JSlider slider;
 	private final JLabel number, title;
 	private final JButton generateButton;
+	private final RangePanel rangeXPanel, rangeYPanel;
 	private final static int MAX = 1000;
 	private final static int MIN = 10;
 	private final static int INIT = 20;
@@ -30,6 +32,8 @@ public class PointInputPanel extends JPanel {
 		this.number = new JLabel("");
 		this.title = new JLabel("Amount of random points");
 		this.generateButton = new JButton("Generate");
+		this.rangeXPanel = new RangePanel(controller, "X");
+		this.rangeYPanel = new RangePanel(controller, "Y");
 		this.slider = new JSlider(JSlider.HORIZONTAL, MIN, MAX, INIT);
 		this.initialize();
 	}
@@ -44,19 +48,28 @@ public class PointInputPanel extends JPanel {
 		this.number.setText(INIT+"");
 		this.number.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
+		this.rangeXPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		this.rangeYPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		
 		this.generateButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.generateButton.addActionListener(new MyGenerateListener());
 		
 		this.add(this.title);
 		this.add(this.slider);
 		this.add(this.number);
+		this.add(this.rangeXPanel);
+		this.add(this.rangeYPanel);
 		this.add(this.generateButton);
 	}
 	
 	private class MyGenerateListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			PointInputPanel.this.getController().handleGenerateClick();
+			try {
+				PointInputPanel.this.getController().handleGenerateClick();
+			} catch (AbstractGuiException e) {
+				PointInputPanel.this.getController().handleException(e);
+			}
 		}
 	}
 	
@@ -85,6 +98,14 @@ public class PointInputPanel extends JPanel {
 
 	public JLabel getTitle() {
 		return title;
+	}
+
+	public RangePanel getRangeYPanel() {
+		return rangeYPanel;
+	}
+
+	public RangePanel getRangeXPanel() {
+		return rangeXPanel;
 	}
 	
 }

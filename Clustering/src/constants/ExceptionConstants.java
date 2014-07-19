@@ -13,4 +13,5 @@ public class ExceptionConstants {
 	public static final String NoPointsGeneratedMessage = "You need to generate points first!";
 	public static final String NoAlgoSelectedMessage = "You need to select a clustering algorithm!";
 	public static final String WrongFileFormatMessage = "This file format is not supported: ";
+	public static final String MinGreaterMaxMessage = "The specified max value must be greater than the specified min value!";
 }

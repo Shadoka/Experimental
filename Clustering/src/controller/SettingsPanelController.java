@@ -25,6 +25,7 @@ import observer.NewPointsEvent;
 import common.StopCondition;
 import exception.AbstractGuiException;
 import exception.EmptyKFieldException;
+import exception.MinGreaterMaxException;
 import exception.NoAlgoSelectedException;
 import exception.NoNegativeNumbersAllowedException;
 import exception.NoPointsGeneratedException;
@@ -111,13 +112,13 @@ public class SettingsPanelController {
 	
 	private StopCondition getStopCondition() throws AbstractGuiException {
 		if (this.getPanel().getConditionPanel().getAmountLimit().isSelected()) {
-			this.validateNumericInputField(this.getPanel().getConditionPanel().getAmount());
+			this.validateNumericInputField(this.getPanel().getConditionPanel().getAmount(), 1);
 			return new AmountLimitCondition(Integer.parseInt(this.getPanel().getConditionPanel().getAmount().getText()));
 		} else if (this.getPanel().getConditionPanel().getRadiusLimit().isSelected()) {
-			this.validateNumericInputField(this.getPanel().getConditionPanel().getRadius());
+			this.validateNumericInputField(this.getPanel().getConditionPanel().getRadius(), 1);
 			return new RadiusLimitCondition(Integer.parseInt(this.getPanel().getConditionPanel().getRadius().getText()));
 		} else if (this.getPanel().getConditionPanel().getDiameterLimit().isSelected()) {
-			this.validateNumericInputField(this.getPanel().getConditionPanel().getDiameter());
+			this.validateNumericInputField(this.getPanel().getConditionPanel().getDiameter(), 1);
 			return new DiameterLimitCondition(Integer.parseInt(this.getPanel().getConditionPanel().getDiameter().getText()));
 		} else {
 			throw new NoStopConditionSelectedException();
@@ -167,6 +168,11 @@ public class SettingsPanelController {
 			public void handle(WrongFileFormatException e) {
 				SettingsPanelController.this.setErrorLabel(e.getMessage());
 			}
+			@Override
+			public void handle(MinGreaterMaxException e) {
+				SettingsPanelController.this.setErrorLabel(e.getMessage());
+				SettingsPanelController.this.borderTextField(e.getTxtField());
+			}
 		});
 	}
 	
@@ -175,20 +181,33 @@ public class SettingsPanelController {
 		this.getPanel().getInputPanel().getNumber().setText(source.getValue()+"");
 	}
 	
-	public void handleGenerateClick() {
+	public void handleGenerateClick() throws AbstractGuiException {
+		this.resetBordersAndErrorLabel();
+		this.validateNumericInputField(this.getPanel().getInputPanel().getRangeXPanel().getMin(), 0);
+		this.validateNumericInputField(this.getPanel().getInputPanel().getRangeXPanel().getMax(), 0);
+		this.validateNumericInputField(this.getPanel().getInputPanel().getRangeYPanel().getMin(), 0);
+		this.validateNumericInputField(this.getPanel().getInputPanel().getRangeYPanel().getMax(), 0);
+		int maxX = Integer.parseInt(this.getPanel().getInputPanel().getRangeXPanel().getMax().getText());
+		int minX = Integer.parseInt(this.getPanel().getInputPanel().getRangeXPanel().getMin().getText());
+		int maxY = Integer.parseInt(this.getPanel().getInputPanel().getRangeYPanel().getMax().getText());
+		int minY = Integer.parseInt(this.getPanel().getInputPanel().getRangeYPanel().getMin().getText());
 		int amount = this.getPanel().getInputPanel().getSlider().getValue();
-		Vector<Point> points = this.generateRandomPoints(amount);
+		Vector<Point> points = this.generateRandomPoints(amount, maxX, minX, maxY, minY);
 		this.setGeneratedPoints(points);
 		Vector<EuclideanCluster> empty = new Vector<>();
 		this.getPanel().getFrame().getClusterPanel().getController().updateClusterList(empty);
 		this.getPanel().getFrame().getDrawingPanel().getController().getSystem().setCluster(empty);
 	}
 	
-	private Vector<Point> generateRandomPoints(int n) {
+	private Vector<Point> generateRandomPoints(int n, int maxX, int minX, int maxY, int minY) throws AbstractGuiException {
+		if (maxX <= minX) throw new MinGreaterMaxException(this.getPanel().getInputPanel().getRangeXPanel().getMin());
+		if (maxY <= minY) throw new MinGreaterMaxException(this.getPanel().getInputPanel().getRangeYPanel().getMin());
+		int diffX = maxX - minX;
+		int diffY = maxY - minY;
 		Vector<Point> result = new Vector<>();
 		Random rnd = new Random();
 		for (int i = 0; i < n; i++) {
-			result.add(new Point(rnd.nextInt(MAX_X), rnd.nextInt(MAX_Y)));
+			result.add(new Point(rnd.nextInt(diffX) + minX, rnd.nextInt(diffY) + minY));
 		}
 		return result;
 	}
@@ -198,6 +217,8 @@ public class SettingsPanelController {
 		this.getPanel().getConditionPanel().getAmount().setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		this.getPanel().getConditionPanel().getRadius().setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		this.getPanel().getConditionPanel().getDiameter().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		this.getPanel().getInputPanel().getRangeXPanel().getMin().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		this.getPanel().getInputPanel().getRangeYPanel().getMin().setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		this.getPanel().getAlgoPanel().setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 		this.getPanel().getFrame().getErrorLabel().setVisible(false);
 	}
@@ -215,7 +236,7 @@ public class SettingsPanelController {
 			algo.notifyObservers(new NewPointsEvent(this.getGeneratedPoints()));
 			algo.notifyObservers(new ClusterChangedEvent(algo.getCluster()));
 		} else if (this.getPanel().getAlgoPanel().getMeans().isSelected()) {
-			this.validateNumericInputField(this.getPanel().getkPanel().getkField());
+			this.validateNumericInputField(this.getPanel().getkPanel().getkField(), 1);
 			int k = Integer.parseInt(this.getPanel().getkPanel().getkField().getText());
 			Vector<Point> copy = this.deepClone(this.getGeneratedPoints());
 			KMeansAlgorithm algo = new KMeansAlgorithm(copy, EuclideanDistance.getInstance(), this.getPanel().getkPanel().getHierPreButton().isSelected(), k);
@@ -259,7 +280,7 @@ public class SettingsPanelController {
 		return result;
 	}
 	
-	private void validateNumericInputField(JTextField inputField) throws AbstractGuiException {
+	private void validateNumericInputField(JTextField inputField, int minValue) throws AbstractGuiException {
 		if (inputField.getText() == null) {
 			throw new EmptyKFieldException();
 		}
@@ -267,7 +288,7 @@ public class SettingsPanelController {
 			throw new OnlyDigitsAllowedException(inputField);
 		}
 		int number = Integer.parseInt(inputField.getText());
-		if (number < 1) throw new NoNegativeNumbersAllowedException(inputField);
+		if (number < minValue) throw new NoNegativeNumbersAllowedException(inputField);
 	}
 	
 	public SettingsPanel getPanel() {
