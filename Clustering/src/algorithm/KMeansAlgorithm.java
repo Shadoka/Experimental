@@ -1,6 +1,7 @@
 package algorithm;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -17,7 +18,7 @@ public class KMeansAlgorithm extends AbstractAlgorithm {
 	private final double samplePercentage = 0.4;
 	private final int k;
 	
-	public KMeansAlgorithm(Vector<Point> points, DistanceMeasure measure, boolean preClustering, int k) {
+	public KMeansAlgorithm(List<Point> points, DistanceMeasure measure, boolean preClustering, int k) {
 		super(points, measure);
 		this.k = k;
 		this.initialize(preClustering);
@@ -64,8 +65,8 @@ public class KMeansAlgorithm extends AbstractAlgorithm {
 	private void initRandom() {
 		Random rnd = new Random();
 		int startNumber = rnd.nextInt(this.getPoints().size());
-		Vector<PointToMultiplePointsDistances> pairs;
-		Vector<Point> startClusters = new Vector<>();
+		List<PointToMultiplePointsDistances> pairs;
+		List<Point> startClusters = new Vector<>();
 		startClusters.add(this.getPoints().get(startNumber));
 		this.getPoints().remove(startNumber);
 		while (startClusters.size() < this.k) {
@@ -95,7 +96,7 @@ public class KMeansAlgorithm extends AbstractAlgorithm {
 	 * @param pairs : Vector.
 	 * @return sth.
 	 */
-	private PointToMultiplePointsDistances getBestPair(Vector<PointToMultiplePointsDistances> pairs) {
+	private PointToMultiplePointsDistances getBestPair(List<PointToMultiplePointsDistances> pairs) {
 		if (pairs.size() > 1) {
 			PointToMultiplePointsDistances result = pairs.get(0);
 			for (int i = 1; i < pairs.size(); i++) {

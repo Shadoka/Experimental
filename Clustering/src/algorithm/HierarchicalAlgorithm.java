@@ -1,6 +1,7 @@
 package algorithm;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import common.StopCondition;
@@ -14,7 +15,7 @@ public class HierarchicalAlgorithm extends AbstractAlgorithm {
 
 	private final StopCondition condition;
 	
-	public HierarchicalAlgorithm(Vector<Point> points, DistanceMeasure measure, StopCondition condition) {
+	public HierarchicalAlgorithm(List<Point> points, DistanceMeasure measure, StopCondition condition) {
 		super(points, measure);
 		this.condition = condition;
 		this.initClusters(points);
@@ -51,7 +52,7 @@ public class HierarchicalAlgorithm extends AbstractAlgorithm {
 		}
 	}
 	
-	private ClusterPair selectBestPair(Vector<ClusterPair> pairs) {
+	private ClusterPair selectBestPair(List<ClusterPair> pairs) {
 		ClusterPair best = pairs.get(0);
 		for (int i = 1; i < pairs.size(); i++) {
 			if (pairs.get(i).getDistance() < best.getDistance()) best = pairs.get(i);

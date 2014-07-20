@@ -53,8 +53,6 @@ public class SettingsPanelController {
 	private final SettingsPanel panel;
 	private AbstractAlgorithm algo;
 	private Vector<Point> generatedPoints;
-	private final static int MAX_X = 1000;
-	private final static int MAX_Y = 1000;
 	
 	public SettingsPanelController(SettingsPanel panel) {
 		this.panel = panel;
