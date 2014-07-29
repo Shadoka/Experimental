@@ -18,8 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import exception.WrongFileFormatException;
 
@@ -32,10 +34,12 @@ public class ClusteringFrame extends JFrame {
 	private final DrawingPanel drawingPanel;
 	private final ClusterOverviewPanel clusterPanel;
 	private final SettingsPanel settingsPanel;
+	private final TextPrintingPanel printPanel;
 	
 	public ClusteringFrame() {
 		this.drawingPanel = new DrawingPanel(this, 400, 400);
 		this.errorLabel = new JLabel("");
+		this.printPanel = new TextPrintingPanel();
 		this.clusterPanel = new ClusterOverviewPanel(this);
 		this.settingsPanel = new SettingsPanel(this);
 		this.initialize();
@@ -56,43 +60,36 @@ public class ClusteringFrame extends JFrame {
 		this.add(this.errorLabel, BorderLayout.NORTH);
 		this.errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
+		this.printPanel.setVisible(false);
+		this.printPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		this.printPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+		
+		JPanel botPanel = new JPanel();
+		botPanel.setLayout(new BoxLayout(botPanel, BoxLayout.PAGE_AXIS));
+		botPanel.add(this.settingsPanel);
+		botPanel.add(this.printPanel);
+		this.add(botPanel, BorderLayout.SOUTH);
+		
 		this.settingsPanel.revalidate();
 		this.settingsPanel.repaint();
 		
-		this.add(this.settingsPanel, BorderLayout.SOUTH);
-		
 		this.drawingPanel.addMouseListener(new MouseListener() {
-			
 			private int clickedAtX;
 			private int clickedAtY;
-			
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				ClusteringFrame.this.getDrawingPanel().getController().viewMoved(arg0.getX() - this.clickedAtX, arg0.getY() - this.clickedAtY);
 			}
-			
-			@Override
 			public void mousePressed(MouseEvent arg0) {
 				this.clickedAtX = arg0.getX();
 				this.clickedAtY = arg0.getY();
 			}
-			
 			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+			public void mouseExited(MouseEvent arg0) {}
 			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+			public void mouseEntered(MouseEvent arg0) {}
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-			}
+			public void mouseClicked(MouseEvent arg0) {}
 		});
 		
 		this.drawingPanel.addMouseWheelListener(new MouseWheelListener() {
@@ -161,5 +158,9 @@ public class ClusteringFrame extends JFrame {
 
 	public DrawingPanel getDrawingPanel() {
 		return drawingPanel;
+	}
+
+	public TextPrintingPanel getPrintPanel() {
+		return printPanel;
 	}
 }

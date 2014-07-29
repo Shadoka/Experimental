@@ -59,6 +59,10 @@ public class SettingsPanelController {
 		this.generatedPoints = new Vector<>();
 	}
 	
+	public void showPrinting(boolean show) {
+		this.getPanel().getFrame().getPrintPanel().setVisible(show);
+	}
+	
 	public void selectHierButton() {
 		this.enableAllConditionButtons(true);
 		this.getPanel().getkPanel().getkField().setEnabled(false);
